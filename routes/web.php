@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CraftController;
-use App\Http\Controllers\MasterClassController;
 use App\Http\Controllers\CabinetController;
+use App\Http\Controllers\CraftController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MasterClassController;
 use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 

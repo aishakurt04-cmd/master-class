@@ -11,12 +11,12 @@ return new class extends Migration
         Schema::create('crafts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description'); 
+            $table->text('description');
             $table->string('image')->nullable();
             $table->timestamps();
         });
     }
-    
+
     public function down(): void
     {
         Schema::dropIfExists('crafts');

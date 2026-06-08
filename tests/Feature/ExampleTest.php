@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;  // ← Добавить импорт
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;  // ← Добавить импорт
 
 class ExampleTest extends TestCase
 {
     use RefreshDatabase;  // ← Добавить эту строку
-    /** @test */
+
     public function test_the_application_returns_a_successful_response(): void
     {
         $response = $this->get('/');

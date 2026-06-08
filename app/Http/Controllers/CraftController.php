@@ -16,7 +16,7 @@ class CraftController extends Controller
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();
-        
+
         $crafts = Craft::all();
 
         return view('category', compact('craft', 'masterClasses', 'crafts'));

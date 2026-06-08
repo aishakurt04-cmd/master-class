@@ -24,7 +24,7 @@ class RegistrationController extends Controller
             abort(403, 'Вы уже записаны на этот мастер-класс');
         }
 
-        if (!$masterClass->hasFreePlaces()) {
+        if (! $masterClass->hasFreePlaces()) {
             abort(403, 'Нет свободных мест');
         }
 
@@ -45,7 +45,7 @@ class RegistrationController extends Controller
                 ->with('error', 'Вы уже записаны на этот мастер-класс');
         }
 
-        if (!$masterClass->hasFreePlaces()) {
+        if (! $masterClass->hasFreePlaces()) {
             return redirect()->route('craft.show', $masterClass->craft_id)
                 ->with('error', 'Свободных мест нет');
         }
@@ -56,9 +56,9 @@ class RegistrationController extends Controller
         }
 
         Registration::create([
-            'user_id'         => $user->id,
+            'user_id' => $user->id,
             'master_class_id' => $masterClass->id,
-            'status'          => 'confirmed',
+            'status' => 'confirmed',
         ]);
 
         $masterClass->increment('current_participants');
@@ -66,6 +66,4 @@ class RegistrationController extends Controller
         return redirect()->route('craft.show', $masterClass->craft_id)
             ->with('success', 'Вы успешно записаны на мастер-класс');
     }
-
-    
 }

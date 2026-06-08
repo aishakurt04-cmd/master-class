@@ -2,22 +2,18 @@
 
 namespace App\Models;
 
-
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'role', 'photo', 'bio'
+        'name', 'email', 'password', 'phone', 'role', 'photo', 'bio',
     ];
 
     protected $hidden = [
@@ -27,7 +23,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
     public function isLeader(): bool
     {
         return $this->role === 'leader';
@@ -41,7 +37,7 @@ class User extends Authenticatable
     public function registeredMasterClasses(): BelongsToMany
     {
         return $this->belongsToMany(MasterClass::class, 'registrations')
-                    ->withPivot('status', 'created_at')
-                    ->withTimestamps();
+            ->withPivot('status', 'created_at')
+            ->withTimestamps();
     }
 }

@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Models\User;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -21,7 +20,7 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials  = $request->validated();
+        $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
@@ -30,6 +29,7 @@ class AuthController extends Controller
             if ($user->isLeader()) {
                 return redirect()->route('cabinet');
             }
+
             return redirect()->route('home');
         }
 
@@ -48,11 +48,11 @@ class AuthController extends Controller
         $validated = $request->validated();
 
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'phone'    => $validated['phone'],
-            'role'     => 'visitor',
+            'phone' => $validated['phone'],
+            'role' => 'visitor',
         ]);
 
         Auth::login($user);
@@ -65,6 +65,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('home');
     }
 }

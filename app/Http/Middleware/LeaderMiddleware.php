@@ -16,7 +16,7 @@ class LeaderMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Проверяем, авторизован ли пользователь и имеет ли роль 'leader'
-        if (!auth()->check() || !auth()->user()->isLeader()) {
+        if (! auth()->check() || ! auth()->user()->isLeader()) {
             abort(403, 'Доступ только для ведущих мастер-классов');
         }
 

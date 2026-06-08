@@ -2,38 +2,40 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class UserTest extends TestCase
 {
     use RefreshDatabase;
-    /** @test */
-    public function user_can_be_created()
+
+    public function test_user_can_be_created()
     {
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
             'phone' => '88005553535',
-            'role' => 'visitor'
+            'role' => 'visitor',
         ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',
-            'name' => 'Test User'
+            'name' => 'Test User',
         ]);
     }
-    /** @test */
-    public function leader_role_check_works()
+
+    public function test_leader_role_check_works()
     {
         $visitor = User::create([
             'name' => 'Visitor',
             'email' => 'visitor@example.com',
             'password' => bcrypt('password'),
             'phone' => '88005553535',
-            'role' => 'visitor'
+            'role' => 'visitor',
         ]);
 
         $leader = User::create([
@@ -41,24 +43,25 @@ class UserTest extends TestCase
             'email' => 'leader@example.com',
             'password' => bcrypt('password'),
             'phone' => '88005553536',
-            'role' => 'leader'
+            'role' => 'leader',
         ]);
 
         $this->assertFalse($visitor->isLeader());
         $this->assertTrue($leader->isLeader());
     }
-    /** @test */
-    public function user_has_master_classes_relation()
+
+    public function test_user_has_master_classes_relation()
     {
         $user = User::factory()->create(['role' => 'leader']);
-        
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->masterClasses());
+
+        $this->assertInstanceOf(HasMany::class, $user->masterClasses());
     }
-    /** @test */
-    public function user_has_registered_master_classes_relation()
+
+
+    public function test_user_has_registered_master_classes_relation()
     {
         $user = User::factory()->create();
-        
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $user->registeredMasterClasses());
+
+        $this->assertInstanceOf(BelongsToMany::class, $user->registeredMasterClasses());
     }
 }

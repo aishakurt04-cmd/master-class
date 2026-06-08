@@ -2,28 +2,30 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
+use App\Models\Craft;
 use App\Models\MasterClass;
 use App\Models\User;
-use App\Models\Craft;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class MasterClassTest extends TestCase
 {
     use RefreshDatabase;
 
     private $leader;
+
     private $craft;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->leader = User::factory()->create(['role' => 'leader']);
         $this->craft = Craft::factory()->create();
     }
-    /** @test */
-    public function master_class_can_be_created()
+
+    public function test_master_class_can_be_created()
     {
         $masterClass = MasterClass::create([
             'craft_id' => $this->craft->id,
@@ -35,15 +37,15 @@ class MasterClassTest extends TestCase
             'end_time' => '12:00:00',
             'max_participants' => 10,
             'current_participants' => 0,
-            'price' => 1000
+            'price' => 1000,
         ]);
 
         $this->assertDatabaseHas('master_classes', [
-            'name' => 'Test Master Class'
+            'name' => 'Test Master Class',
         ]);
     }
-    /** @test */
-    public function has_free_places_returns_correct_value()
+
+    public function test_has_free_places_returns_correct_value()
     {
         $masterClass = MasterClass::create([
             'craft_id' => $this->craft->id,
@@ -55,7 +57,7 @@ class MasterClassTest extends TestCase
             'end_time' => '12:00:00',
             'max_participants' => 10,
             'current_participants' => 5,
-            'price' => 1000
+            'price' => 1000,
         ]);
 
         $this->assertTrue($masterClass->hasFreePlaces());
@@ -63,8 +65,8 @@ class MasterClassTest extends TestCase
         $masterClass->current_participants = 10;
         $this->assertFalse($masterClass->hasFreePlaces());
     }
-    /** @test */
-    public function get_available_places_returns_correct_number()
+
+    public function test_get_available_places_returns_correct_number()
     {
         $masterClass = MasterClass::create([
             'craft_id' => $this->craft->id,
@@ -76,29 +78,29 @@ class MasterClassTest extends TestCase
             'end_time' => '12:00:00',
             'max_participants' => 10,
             'current_participants' => 3,
-            'price' => 1000
+            'price' => 1000,
         ]);
 
         $this->assertEquals(7, $masterClass->getAvailablePlaces());
     }
-    /** @test */
-    public function master_class_belongs_to_craft()
+
+    public function test_master_class_belongs_to_craft()
     {
         $masterClass = MasterClass::factory()->create([
             'craft_id' => $this->craft->id,
-            'leader_id' => $this->leader->id
+            'leader_id' => $this->leader->id,
         ]);
-        
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $masterClass->craft());
+
+        $this->assertInstanceOf(BelongsTo::class, $masterClass->craft());
     }
-    /** @test */
-    public function master_class_belongs_to_leader()
+
+    public function test_master_class_belongs_to_leader()
     {
         $masterClass = MasterClass::factory()->create([
             'craft_id' => $this->craft->id,
-            'leader_id' => $this->leader->id
+            'leader_id' => $this->leader->id,
         ]);
-        
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $masterClass->leader());
+
+        $this->assertInstanceOf(BelongsTo::class, $masterClass->leader());
     }
 }

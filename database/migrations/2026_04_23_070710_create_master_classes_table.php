@@ -20,8 +20,8 @@ return new class extends Migration
             $table->date('date'); // Дата проведения
             $table->time('start_time'); // Время начала (9:00, 11:00, 13:00, 15:00)
             $table->time('end_time'); // Время окончания (+2 часа)
-            $table->integer('max_participants'); 
-            $table->integer('current_participants')->default(0); 
+            $table->integer('max_participants');
+            $table->integer('current_participants')->default(0);
             $table->unsignedInteger('price');
             $table->timestamps();
         });

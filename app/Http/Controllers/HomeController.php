@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Craft;
-use App\Models\MasterClass;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -18,15 +16,16 @@ class HomeController extends Controller
 
         if (Auth::check()) {
             $user = Auth::user();
-            if (!$user->isLeader()) {
+            if (! $user->isLeader()) {
                 $userRegistrations = $user->registeredMasterClasses()
-                                ->with('craft', 'leader')
-                                ->where('date', '>=', now()->startOfDay())
-                                ->orderBy('date')
-                                ->get();
+                    ->with('craft', 'leader')
+                    ->where('date', '>=', now()->startOfDay())
+                    ->orderBy('date')
+                    ->get();
                 $hasRegistrations = $userRegistrations->isNotEmpty();
             }
         }
-        return view('home', compact('crafts', 'userRegistrations','hasRegistrations'));
+
+        return view('home', compact('crafts', 'userRegistrations', 'hasRegistrations'));
     }
 }

@@ -14,12 +14,12 @@ return new class extends Migration
             $table->foreignId('master_class_id')->constrained()->onDelete('cascade'); // Мастер-класс
             $table->string('status')->default('confirmed');
             $table->timestamps();
-            
+
             // Запрещаем повторную запись на один мастер-класс
             $table->unique(['user_id', 'master_class_id']);
         });
     }
- 
+
     public function down(): void
     {
         Schema::dropIfExists('registrations');

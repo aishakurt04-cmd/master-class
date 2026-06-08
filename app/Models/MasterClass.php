@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class MasterClass extends Model
 {
@@ -21,7 +21,7 @@ class MasterClass extends Model
         'end_time',
         'max_participants',
         'current_participants',
-        'price'
+        'price',
     ];
 
     protected $casts = [
@@ -32,7 +32,7 @@ class MasterClass extends Model
 
     public function getRussianDateAttribute(): string
     {
-        return $this->date->translatedFormat('d') . ' ' . mb_strtolower($this->date->translatedFormat('F'));
+        return $this->date->translatedFormat('d').' '.mb_strtolower($this->date->translatedFormat('F'));
     }
 
     public function craft(): BelongsTo
@@ -48,8 +48,8 @@ class MasterClass extends Model
     public function participants(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'registrations')
-                    ->withPivot('status', 'created_at')
-                    ->withTimestamps();
+            ->withPivot('status', 'created_at')
+            ->withTimestamps();
     }
 
     public function hasFreePlaces(): bool
