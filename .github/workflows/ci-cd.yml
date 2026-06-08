@@ -50,10 +50,10 @@ jobs:
       
       - name: Проверка порога покрытия (50%)
         run: |
-          ПОКРЫТИЕ=$(php -r "echo simplexml_load_file('coverage.xml')->project->directory->totals->lines['percent'];")
-          echo "Покрытие кода тестами: $ПОКРЫТИЕ%"
-          if (( $(echo "$ПОКРЫТИЕ < 50" | bc -l) )); then
-            echo "Ошибка: Покрытие кода ниже 50% (текущее: $ПОКРЫТИЕ%)"
+          COVERAGE=$(php -r "echo simplexml_load_file('coverage.xml')->project->directory->totals->lines['percent'];")
+          echo "Покрытие кода тестами: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "Ошибка: Покрытие кода ниже 50% (текущее: $COVERAGE%)"
             exit 1
           fi
       
