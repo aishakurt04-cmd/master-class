@@ -95,7 +95,7 @@ jobs:
       
       - name: Запуск PHPStan (Larastan)
         run: |
-          composer require --dev larastan/larastan:^2.0
+          composer require --dev larastan/larastan:^3.0 --with-all-dependencies --no-audit
           vendor/bin/phpstan analyse --error-format=github --level=5 app/ --no-progress
 
   # Задача 3: Проверка стиля кода
