@@ -12,6 +12,7 @@ on:
       - dev
       - uat
 
+
 env:
   PHP_VERSION: '8.3'
 
@@ -114,9 +115,10 @@ jobs:
   simulate-deploy:
     name: Симуляция развертывания
     runs-on: ubuntu-latest
-    needs: [tests, static-analysis, linting]
-    if: success() && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/uat' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
+    needs: [tests, linting]
+    if: success() && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/uat' || github.ref == 'refs/heads/main')
+    environment: 
+      name: ${{ (github.ref == 'refs/heads/main' && 'production') || 'development' }}
     steps:
       - name: Получение кода из репозитория
         uses: actions/checkout@v4
@@ -132,7 +134,7 @@ jobs:
             echo "env=uat" >> $GITHUB_OUTPUT
             echo "env_file=.env.uat" >> $GITHUB_OUTPUT
             echo "env_name=ТЕСТИРОВАНИЕ" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "env=production" >> $GITHUB_OUTPUT
             echo "env_file=.env.prod" >> $GITHUB_OUTPUT
             echo "env_name=ПРОДАКШН" >> $GITHUB_OUTPUT
@@ -142,28 +144,10 @@ jobs:
         run: |
           echo "Развертывание в ОКРУЖЕНИЕ ${{ steps.env.outputs.env_name }} с файлом ${{ steps.env.outputs.env_file }}"
           cp ${{ steps.env.outputs.env_file }} .env
-          echo "Файл окружения подготовлен для развертывания"
-      
-      - name: Симуляция развертывания (разработка/тестирование)
-        if: steps.env.outputs.env != 'production'
-        run: |
-          echo "Симуляция развертывания  ${{ steps.env.outputs.env_name }}"
-          echo "Развертывание в ${{ steps.env.outputs.env_name }} успешно завершено"
-      
-      - name: Ожидание ручного одобрения (продакшн)
-        if: steps.env.outputs.env == 'production'
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: |
-            aishakurt04-cmd
-          minimum-approvals: 1
       
       - name: Симуляция развертывания
-        if: steps.env.outputs.env == 'production'
         run: |
-          echo "Симуляция развертывания в продакшн"
-          echo "Развертывание в продакшн успешно завершено"
+          echo "Развертывание в ${{ steps.env.outputs.env_name }} успешно завершено"
 
   # Отправка уведомлений
   notify:
