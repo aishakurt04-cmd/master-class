@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class UserTest extends TestCase
 {
     use RefreshDatabase;
-
+    /** @test */
     public function user_can_be_created()
     {
         $user = User::create([
@@ -25,7 +25,7 @@ class UserTest extends TestCase
             'name' => 'Test User'
         ]);
     }
-
+    /** @test */
     public function leader_role_check_works()
     {
         $visitor = User::create([
@@ -47,14 +47,14 @@ class UserTest extends TestCase
         $this->assertFalse($visitor->isLeader());
         $this->assertTrue($leader->isLeader());
     }
-
+    /** @test */
     public function user_has_master_classes_relation()
     {
         $user = User::factory()->create(['role' => 'leader']);
         
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->masterClasses());
     }
-
+    /** @test */
     public function user_has_registered_master_classes_relation()
     {
         $user = User::factory()->create();

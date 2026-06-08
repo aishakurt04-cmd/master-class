@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;  // ← Добавить им
 class ExampleTest extends TestCase
 {
     use RefreshDatabase;  // ← Добавить эту строку
-    
+    /** @test */
     public function test_the_application_returns_a_successful_response(): void
     {
         $response = $this->get('/');

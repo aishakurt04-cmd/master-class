@@ -38,7 +38,7 @@ class RegistrationTest extends TestCase
             'price' => 1000
         ]);
     }
-
+    /** @test */
     public function user_can_register_for_master_class()
     {
         $response = $this->actingAs($this->user)
@@ -53,7 +53,7 @@ class RegistrationTest extends TestCase
             'status' => 'confirmed'
         ]);
     }
-
+    /** @test */
     public function user_cannot_register_twice_for_same_master_class()
     {
         $this->actingAs($this->user)
@@ -65,7 +65,7 @@ class RegistrationTest extends TestCase
         $response->assertRedirect("/craft/{$this->craft->id}");
         $response->assertSessionHas('error');
     }
-
+    /** @test */
     public function user_cannot_register_for_full_master_class()
     {
         $this->masterClass->current_participants = $this->masterClass->max_participants;
@@ -77,7 +77,7 @@ class RegistrationTest extends TestCase
         $response->assertRedirect("/craft/{$this->craft->id}");
         $response->assertSessionHas('error');
     }
-
+    /** @test */
     public function registration_requires_authentication()
     {
         $response = $this->get("/registration/{$this->masterClass->id}/create");

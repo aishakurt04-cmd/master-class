@@ -22,7 +22,7 @@ class MasterClassTest extends TestCase
         $this->leader = User::factory()->create(['role' => 'leader']);
         $this->craft = Craft::factory()->create();
     }
-
+    /** @test */
     public function master_class_can_be_created()
     {
         $masterClass = MasterClass::create([
@@ -42,7 +42,7 @@ class MasterClassTest extends TestCase
             'name' => 'Test Master Class'
         ]);
     }
-
+    /** @test */
     public function has_free_places_returns_correct_value()
     {
         $masterClass = MasterClass::create([
@@ -63,7 +63,7 @@ class MasterClassTest extends TestCase
         $masterClass->current_participants = 10;
         $this->assertFalse($masterClass->hasFreePlaces());
     }
-
+    /** @test */
     public function get_available_places_returns_correct_number()
     {
         $masterClass = MasterClass::create([
@@ -81,7 +81,7 @@ class MasterClassTest extends TestCase
 
         $this->assertEquals(7, $masterClass->getAvailablePlaces());
     }
-
+    /** @test */
     public function master_class_belongs_to_craft()
     {
         $masterClass = MasterClass::factory()->create([
@@ -91,7 +91,7 @@ class MasterClassTest extends TestCase
         
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $masterClass->craft());
     }
-
+    /** @test */
     public function master_class_belongs_to_leader()
     {
         $masterClass = MasterClass::factory()->create([

@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class MasterClassAccessTest extends TestCase
 {
     use RefreshDatabase;
-
+    /** @test */
     public function create_master_class_page_is_forbidden_for_visitors()
     {
         $visitor = User::factory()->create(['role' => 'visitor']);
@@ -20,7 +20,7 @@ class MasterClassAccessTest extends TestCase
         
         $response->assertStatus(403);
     }
-
+    /** @test */
     public function create_master_class_page_is_accessible_for_leaders()
     {
         $leader = User::factory()->create(['role' => 'leader']);
@@ -30,7 +30,7 @@ class MasterClassAccessTest extends TestCase
         
         $response->assertStatus(200);
     }
-
+    /** @test */
     public function cabinet_page_is_forbidden_for_visitors()
     {
         $visitor = User::factory()->create(['role' => 'visitor']);
@@ -39,7 +39,7 @@ class MasterClassAccessTest extends TestCase
         
         $response->assertStatus(403);
     }
-
+    /** @test */
     public function cabinet_page_is_accessible_for_leaders()
     {
         $leader = User::factory()->create(['role' => 'leader']);
@@ -48,7 +48,7 @@ class MasterClassAccessTest extends TestCase
         
         $response->assertStatus(200);
     }
-
+    /** @test */
     public function home_page_is_accessible_for_guests()
     {
         $response = $this->get('/');

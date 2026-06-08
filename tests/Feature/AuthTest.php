@@ -9,19 +9,19 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
-
+    /** @test */
     public function login_page_is_accessible()
     {
         $response = $this->get('/login');
         $response->assertStatus(200);
     }
-
+    /** @test */
     public function register_page_is_accessible()
     {
         $response = $this->get('/register');
         $response->assertStatus(200);
     }
-
+    /** @test */
     public function user_can_register()
     {
         $response = $this->post('/register', [
@@ -38,7 +38,7 @@ class AuthTest extends TestCase
             'name' => 'Test User'
         ]);
     }
-
+    /** @test */
     public function user_can_login()
     {
         $user = User::factory()->create([
@@ -54,7 +54,7 @@ class AuthTest extends TestCase
         $response->assertRedirect('/');
         $this->assertAuthenticated();
     }
-
+    /** @test */
     public function login_fails_with_wrong_credentials()
     {
         $user = User::factory()->create([
@@ -70,7 +70,7 @@ class AuthTest extends TestCase
         $response->assertSessionHasErrors('email');
         $this->assertGuest();
     }
-
+    /** @test */
     public function user_can_logout()
     {
         $user = User::factory()->create();
