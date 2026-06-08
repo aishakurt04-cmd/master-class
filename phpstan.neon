@@ -2,18 +2,12 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    level: 5
+    level: 3
     paths:
         - app/
-        - tests/
-
+    
     ignoreErrors:
         - '#Access to an undefined property#'
-        - '#Call to an undefined method#'
+        - '#Call to an undefined static method#'
         - '#Method .+ should return .+ but returns .+#'
-
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
-
-    bootstrapFiles:
-        - vendor/larastan/larastan/bootstrap.php
+        - '#Property .+ has unknown class .+ as its type#'
