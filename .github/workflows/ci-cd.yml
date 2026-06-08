@@ -1,0 +1,227 @@
+name: CI/CD Конвейер
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - uat
+  pull_request:
+    branches:
+      - main
+      - dev
+      - uat
+
+env:
+  PHP_VERSION: '8.2'
+
+jobs:
+  # Задача 1: Запуск тестов
+  tests:
+    name: Запуск тестов
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Получение кода из репозитория
+        uses: actions/checkout@v4
+      
+      - name: Настройка PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, intl
+          coverage: xdebug
+      
+      - name: Установка зависимостей Composer
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+      - name: Копирование файла окружения для CI
+        run: cp .env.ci .env
+      
+      - name: Генерация ключа приложения
+        run: php artisan key:generate
+      
+      - name: Запуск миграций базы данных
+        run: php artisan migrate --force
+      
+      - name: Запуск тестов с проверкой покрытия
+        run: |
+          vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml --log-junit=test-results.xml
+      
+      - name: Проверка порога покрытия (50%)
+        run: |
+          ПОКРЫТИЕ=$(php -r "echo simplexml_load_file('coverage.xml')->project->directory->totals->lines['percent'];")
+          echo "Покрытие кода тестами: $ПОКРЫТИЕ%"
+          if (( $(echo "$ПОКРЫТИЕ < 50" | bc -l) )); then
+            echo "Ошибка: Покрытие кода ниже 50% (текущее: $ПОКРЫТИЕ%)"
+            exit 1
+          fi
+      
+      - name: Сохранение отчета о покрытии
+        uses: actions/upload-artifact@v4
+        with:
+          name: отчет-покрытия
+          path: coverage.xml
+      
+      - name: Сохранение результатов тестов
+        uses: actions/upload-artifact@v4
+        with:
+          name: результаты-тестов
+          path: test-results.xml
+
+  # Задача 2: Статический анализ кода
+  static-analysis:
+    name: Статический анализ (PHPStan)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Получение кода из репозитория
+        uses: actions/checkout@v4
+      
+      - name: Настройка PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, intl
+      
+      - name: Установка зависимостей Composer
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+      - name: Создание файла .env для анализа
+        run: cp .env.ci .env
+      
+      - name: Генерация ключа приложения
+        run: php artisan key:generate
+      
+      - name: Запуск PHPStan (Larastan)
+        run: |
+          composer require --dev larastan/larastan:^2.0
+          vendor/bin/phpstan analyse --error-format=github --level=5 app/ --no-progress
+
+  # Задача 3: Проверка стиля кода
+  linting:
+    name: Проверка стиля кода (Laravel Pint)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Получение кода из репозитория
+        uses: actions/checkout@v4
+      
+      - name: Настройка PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      
+      - name: Установка зависимостей Composer
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+      - name: Запуск Laravel Pint (режим проверки)
+        run: |
+          ./vendor/bin/pint --test --preset=laravel
+
+  # Задача 4: Симуляция развертывания
+  simulate-deploy:
+    name: Симуляция развертывания
+    runs-on: ubuntu-latest
+    needs: [tests, static-analysis, linting]
+    if: success() && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/uat' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+      - name: Получение кода из репозитория
+        uses: actions/checkout@v4
+      
+      - name: Определение окружения
+        id: env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "env=development" >> $GITHUB_OUTPUT
+            echo "env_file=.env.dev" >> $GITHUB_OUTPUT
+            echo "env_name=РАЗРАБОТКА" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/uat" ]]; then
+            echo "env=uat" >> $GITHUB_OUTPUT
+            echo "env_file=.env.uat" >> $GITHUB_OUTPUT
+            echo "env_name=ТЕСТИРОВАНИЕ" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "env=production" >> $GITHUB_OUTPUT
+            echo "env_file=.env.prod" >> $GITHUB_OUTPUT
+            echo "env_name=ПРОДАКШН" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Копирование файла окружения
+        run: |
+          echo "Развертывание в ОКРУЖЕНИЕ ${{ steps.env.outputs.env_name }} с файлом ${{ steps.env.outputs.env_file }}"
+          cp ${{ steps.env.outputs.env_file }} .env
+          echo "Файл окружения подготовлен для развертывания"
+      
+      - name: Симуляция развертывания (разработка/тестирование)
+        if: steps.env.outputs.env != 'production'
+        run: |
+          echo "Симуляция развертывания  ${{ steps.env.outputs.env_name }}"
+          echo "Развертывание в ${{ steps.env.outputs.env_name }} успешно завершено"
+      
+      - name: Ожидание ручного одобрения (продакшн)
+        if: steps.env.outputs.env == 'production'
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: |
+            aishakurt04-cmd
+          minimum-approvals: 1
+      
+      - name: Симуляция развертывания
+        if: steps.env.outputs.env == 'production'
+        run: |
+          echo "Симуляция развертывания в продакшн"
+          echo "Развертывание в продакшн успешно завершено"
+
+  # Отправка уведомлений
+  notify:
+    name: Отправка уведомлений
+    runs-on: ubuntu-latest
+    needs: [tests, static-analysis, linting, simulate-deploy]
+    if: always()
+    
+    steps:
+      - name: Проверка статуса выполнения
+        id: status
+        run: |
+          if [[ "${{ needs.tests.result }}" == "success" && "${{ needs.static-analysis.result }}" == "success" && "${{ needs.linting.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message= CI/CD Конвейер выполнен успешно!" >> $GITHUB_OUTPUT
+            echo "color=green" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message= CI/CD Конвейер завершился с ошибкой!" >> $GITHUB_OUTPUT
+            echo "color=red" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Отправка email уведомления
+        uses: dawidd6/action-send-mail@v6
+        with:
+          script: |
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: |
+            ${{ steps.status.outputs.status_emoji }} CI/CD Pipeline [${{ steps.status.outputs.status_text }}] - ${{ github.repository }}
+          to: ${{ secrets.MAIL_TO }}
+          from: GitHub Actions <${{ secrets.MAIL_USERNAME }}>
+          body: |
+            Статус: ${{ steps.status.outputs.status_text }}
+            
+            Репозиторий: ${{ github.repository }}
+            Ветка: ${{ github.ref_name }}
+            Коммит: ${{ github.event.head_commit.message }}
+            Автор: ${{ github.actor }}
+            Время: ${{ github.event.head_commit.timestamp }}
+            
+            Детали выполнения:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ---
+            Тесты: ${{ needs.tests.result }}
+            Статический анализ: ${{ needs.static-analysis.result }}
+            Линтинг: ${{ needs.linting.result }}
+            Симуляция деплоя: ${{ needs.simulate-deploy.result }}
