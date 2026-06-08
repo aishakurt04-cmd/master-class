@@ -51,23 +51,12 @@ jobs:
       - name: Проверка порога покрытия (50%)
         run: |
           COVERAGE=$(php -r "echo simplexml_load_file('coverage.xml')->project->directory->totals->lines['percent'];")
-          echo "Покрытие кода тестами: $COVERAGE%"
+          echo "Покрытие кода тестами: $COVERAGE %"
           if (( $(echo "$COVERAGE < 50" | bc -l) )); then
-            echo "Ошибка: Покрытие кода ниже 50% (текущее: $COVERAGE%)"
+            echo "Ошибка: Покрытие кода ниже 50% (текущее: $COVERAGE %)"
             exit 1
           fi
       
-      - name: Сохранение отчета о покрытии
-        uses: actions/upload-artifact@v4
-        with:
-          name: отчет-покрытия
-          path: coverage.xml
-      
-      - name: Сохранение результатов тестов
-        uses: actions/upload-artifact@v4
-        with:
-          name: результаты-тестов
-          path: test-results.xml
 
   # Задача 2: Статический анализ кода
   static-analysis:
