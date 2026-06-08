@@ -44,17 +44,18 @@ jobs:
       - name: Запуск миграций базы данных
         run: php artisan migrate --force
       
-      - name: Запуск тестов с проверкой покрытия
+      - name: Запуск тестов и проверка покрытия
         run: |
-          vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml --log-junit=test-results.xml
-      
-      - name: Проверка порога покрытия (50%)
-        run: |
-          COVERAGE=$(php -r "echo simplexml_load_file('coverage.xml')->project->directory->totals->lines['percent'];")
-          echo "Покрытие кода тестами: $COVERAGE %"
+          vendor/bin/phpunit --coverage-text --colors=never | tee test-output.txt
+          
+          # Извлекаем процент покрытия из вывода
+          COVERAGE=$(grep -oP 'Lines:\s+\K\d+\.\d+' test-output.txt | head -1)
+          
           if (( $(echo "$COVERAGE < 50" | bc -l) )); then
-            echo "Ошибка: Покрытие кода ниже 50% (текущее: $COVERAGE %)"
+            echo "ОШИБКА: Покрытие ${COVERAGE}% ниже 50%"
             exit 1
+          else
+            echo "ПОКРЫТИЕ ${COVERAGE}% - УСПЕШНО"
           fi
       
 
