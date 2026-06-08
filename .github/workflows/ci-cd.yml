@@ -95,6 +95,7 @@ jobs:
       
       - name: Запуск PHPStan (Larastan)
         run: |
+          composer config --unset audit
           composer require --dev larastan/larastan:^3.0 --with-all-dependencies --no-audit
           vendor/bin/phpstan analyse --error-format=github --level=5 app/ --no-progress
 
