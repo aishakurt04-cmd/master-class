@@ -82,7 +82,7 @@ class MasterClassController extends Controller
         ]);
     }
 
-    public function edit(int $id): View
+    public function edit(int $id): RedirectResponse|View
     {
         $user = Auth::user();
         $masterClass = MasterClass::where('leader_id', $user->id)->where('id', $id)->first();
