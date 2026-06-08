@@ -2,12 +2,7 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    level: 3
+    level: 1
     paths:
         - app/
-    
-    ignoreErrors:
-        - '#Access to an undefined property#'
-        - '#Call to an undefined static method#'
-        - '#Method .+ should return .+ but returns .+#'
-        - '#Property .+ has unknown class .+ as its type#'
+    reportUnmatchedIgnoredErrors: false
