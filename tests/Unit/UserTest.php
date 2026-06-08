@@ -57,7 +57,6 @@ class UserTest extends TestCase
         $this->assertInstanceOf(HasMany::class, $user->masterClasses());
     }
 
-
     public function test_user_has_registered_master_classes_relation()
     {
         $user = User::factory()->create();
